@@ -16,6 +16,7 @@ class Bot(commands.Bot):
                 print(f'Could not load extension {cog} due to {exc.__class__.__name__}: {exc}')
 
     async def on_ready(self):
+        self.tree.remove_command('help')
         print(f'Logged on as {self.user} (ID: {self.user.id})')
 
 
