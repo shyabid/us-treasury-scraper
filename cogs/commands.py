@@ -76,7 +76,7 @@ class TreasuryRates(commands.Cog):
                     second=0, 
                     microsecond=0
                 )
-                
+
                 if update_datetime <= now:
                     update_datetime += datetime.timedelta(days=1)
                 
