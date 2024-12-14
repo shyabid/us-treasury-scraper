@@ -9,6 +9,7 @@ class Bot(commands.Bot):
         super().__init__(command_prefix=commands.when_mentioned_or('?'), intents=intents, **kwargs)
 
     async def setup_hook(self):
+        self.remove_command('help')
         for cog in config.cogs:
             try:
                 await self.load_extension(cog)
