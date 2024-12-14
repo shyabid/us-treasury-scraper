@@ -292,7 +292,7 @@ class TreasuryRates(commands.Cog):
 
         embed.set_footer(text="For additional help or issues, please contact an administrator.")
         
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed, ephemeral=True)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(TreasuryRates(bot))
