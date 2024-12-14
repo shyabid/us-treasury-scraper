@@ -23,12 +23,14 @@ class TreasuryRates(commands.Cog):
             self, 
             bot: commands.Bot
         ) -> None:
+        
         self.bot: commands.Bot = bot
         self.graph_link: str = (
             "https://home.treasury.gov/resource-center/data-chart-center/"
             "interest-rates/daily-treasury-rates.csv/2024/all?"
             "type=daily_treasury_yield_curve&field_tdr_date_value=2024&page&_format=csv"
         )
+        
         self.updates_links: Dict[str, str] = {
             "5y": "https://www.cnbc.com/quotes/US5Y",
             "7y": "https://www.cnbc.com/quotes/US7Y",
@@ -36,6 +38,7 @@ class TreasuryRates(commands.Cog):
             "20y": "https://www.cnbc.com/quotes/US20Y",
             "30y": "https://www.cnbc.com/quotes/US30Y"
         }
+        
         self.bot.loop.create_task(self.periodic_update())
         self.channel_ids: Dict[str, int] = {
             "5y": 1295886755295395980,  
@@ -107,6 +110,10 @@ class TreasuryRates(commands.Cog):
         else:
             await ctx.send(f"The channel for the {term.upper()} treasury rates is already set to {channel.mention}")
 
+
+    @commands.command()
+    async def test(self, ctx: commands.Context) -> None:
+        await self.fetch_and_send(ctx, "5y")
 
     async def fetch_and_send(
         self, 
@@ -237,10 +244,55 @@ class TreasuryRates(commands.Cog):
             await channel.send(f"An error occurred: {str(e)}")
 
     @commands.command() 
+    @commands.has_permissions(administrator=True)
     async def sync(self, ctx: commands.Context) -> None:
         ctx.bot.tree.copy_global_to(guild=ctx.guild)
         await ctx.bot.tree.sync(guild=ctx.guild)
         await ctx.send("Synced commands")
+
+    @commands.hybrid_command(
+        name="help",
+        description="Shows information about available commands"
+    )
+    async def help(self, ctx: commands.Context) -> None:
+        embed = discord.Embed(
+            title="Treasury Rates Bot Commands",
+            description="Here are all the available commands and their descriptions:",
+            color=discord.Color.blue()
+        )
+
+        embed.add_field(
+            name="📊 /setchannel [term] [channel]",
+            value="**Admin only:** Set a channel for specific treasury rate updates.\n"
+                  "- `term`: Choose from 5y, 7y, 10y, 20y, or 30y\n"
+                  "- `channel`: The channel where updates will be sent\n"
+                  "Example: `/setchannel 10y #treasury-10y`",
+            inline=False
+        )
+
+        embed.add_field(
+            name="⏰ Automatic Updates",
+            value="The bot automatically sends treasury rate updates at:\n"
+                  "- 9:30 AM ET\n"
+                  "- 12:30 PM ET\n"
+                  "- 4:00 PM ET\n"
+                  "- 7:00 PM ET",
+            inline=False
+        )
+
+        embed.add_field(
+            name="📈 Update Information",
+            value="Each update includes:\n"
+                  "- Current yield rate\n"
+                  "- Daily change\n"
+                  "- Key statistics\n"
+                  "- 60-day yield chart",
+            inline=False
+        )
+
+        embed.set_footer(text="For additional help or issues, please contact an administrator.")
+        
+        await ctx.send(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(TreasuryRates(bot))
